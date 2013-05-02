@@ -1,5 +1,6 @@
 package co.s4n.smtp;
 
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -29,6 +30,9 @@ public class MailService {
 	public void send( EmailVO message ) throws SMTPPermanentFailureException, SMTPPersistentTemporaryFailureException, SMTPServerConnectionException, InvalidDNSException, InvalidEmailAddress {
 
 		Vector< URLName > mxServers = DnsResolver.getMXRecordsForHost( chopHostNameFrom( message.to( ) ) );
+		if( 0 == mxServers.size( ) )
+			throw new SMTPServerConnectionException( "No se pudo determinar la entrada MX del dominio.", null );
+		
 		Session session = MailSessionFactory.buildSession( mxServers.get( 0 ), chopHostNameFrom( message.from( ) ) );
 		MimeMessage mimeMessage = createNewMimeMessage( session, message );
 		InternetAddress[ ] recipient = verifyEmail( message );
@@ -63,12 +67,8 @@ public class MailService {
 			throw new SMTPPermanentFailureException( exMessage, me );
 		else if ( '4' == exMessage.charAt( 0 ) )
 			throw new SMTPPersistentTemporaryFailureException( exMessage, me );
-		else {
-			System.out.println( "=====================================" );
-			System.out.println( exMessage );
-			System.out.println( "=====================================" );
+		else
 			throw new RuntimeException( me );
-		}
 	}
 
 	/**
@@ -146,7 +146,8 @@ public class MailService {
 			mime.setFrom( new InternetAddress( message.from( ) ) );
 			mime.addRecipient( Message.RecipientType.TO, new InternetAddress( message.to( ) ) );
 			mime.setSubject( message.subject( ) );
-			mime.setText( message.message( ) );
+			mime.setContent( message.message( ), "text/html; charset=utf-8");
+			mime.setSentDate( Calendar.getInstance( ).getTime( ) );
 			return mime;
 		}
 		catch( AddressException e ) 
