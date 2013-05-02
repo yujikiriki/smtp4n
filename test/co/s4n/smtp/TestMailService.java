@@ -13,7 +13,7 @@ public class TestMailService extends TestCase {
 		MailService mailService = new MailService( );
 		try 
 		{
-			mailService.send( new EmailVO( "yujikiriki@enterpisy.co", "josegarcia@s4n.co", "aaaa", "Prueba HTML", "<html><body><p>Hola <b>papi</b></p></body></html>" ) );
+			mailService.send( new EmailVO( "yujikiriki@enterpisy.co", "yujikiriki@s4n.co", "yujikiriki@seven4n.com", "Prueba HTML", "<html><body><p>Hola <b>mundo</b></p></body></html>" ) );
 		}
 		catch ( SMTPPermanentFailureException e ) {
 			e.printStackTrace( );

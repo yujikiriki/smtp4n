@@ -19,12 +19,11 @@ public class DnsResolver {
 	public static final String SMTP_PROTOCOL_PREFIX = "smtp://";
 
 	/**
-	 * <p>This method gives back the host name(s) where we can send the email. 
-	 * It is copied from it's original place in RemoteDelivery object.</p>
+	 * <p>This method gives back the host name(s) where we can send the email.</p>
 	 * 
 	 * <p>First time we ask DNS to find MX record(s) of a domain name. If no MX 
-	 * records are found, we check the upper level domains (if exists). At last 
-	 * we try to get the domain A record, because the MX server could be same as 
+	 * records are found, we check the upper level domains (if exists). 
+	 * At last we try to get the domain A record, because the MX server could be same as 
 	 * the normal domain handler server. If only upper level domain has MX 
 	 * record then we append the A record of original hostname (if exists) as 
 	 * first element of record collection. If none of these tries are 
@@ -108,7 +107,7 @@ public class DnsResolver {
 		catch ( TextParseException e ) {
 			throw new InvalidDNSException( "El nombre " + hostName + " no es un nombre DNS válido.", e );
 		}
-		
+
 		return recordsColl;
 	}
 }

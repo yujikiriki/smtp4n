@@ -36,4 +36,8 @@ public class EmailVO {
 	public String cc( ) {
 		return cc;
 	}
+
+	public Boolean hasCC( ) {
+		return ( cc != null && cc != "" );
+	}
 }

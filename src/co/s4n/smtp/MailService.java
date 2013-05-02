@@ -27,12 +27,17 @@ public class MailService {
 //      Services 
 //-----------------------
 
+	/**
+	 * Envía un correo electrónico
+	 * @param message
+	 * @throws SMTPPermanentFailureException
+	 * @throws SMTPPersistentTemporaryFailureException
+	 * @throws SMTPServerConnectionException
+	 * @throws InvalidDNSException
+	 * @throws InvalidEmailAddress
+	 */
 	public void send( EmailVO message ) throws SMTPPermanentFailureException, SMTPPersistentTemporaryFailureException, SMTPServerConnectionException, InvalidDNSException, InvalidEmailAddress {
-
-		Vector< URLName > mxServers = DnsResolver.getMXRecordsForHost( chopHostNameFrom( message.to( ) ) );
-		if( 0 == mxServers.size( ) )
-			throw new SMTPServerConnectionException( "No se pudo determinar la entrada MX del dominio.", null );
-		
+		Vector< URLName > mxServers = resolveMXServer( message );
 		Session session = MailSessionFactory.buildSession( mxServers.get( 0 ), chopHostNameFrom( message.from( ) ) );
 		MimeMessage mimeMessage = createNewMimeMessage( session, message );
 		InternetAddress[ ] recipient = verifyEmail( message );
@@ -50,10 +55,23 @@ public class MailService {
 		}
 	}
 
-	
 //-----------------------
 //   Private methods
 //-----------------------
+	
+	/**
+	 * Resuleve la existencia de entradas MX de un dominio
+	 * @param message
+	 * @return La lista de nombres DNS tipo MX
+	 * @throws InvalidDNSException
+	 * @throws SMTPServerConnectionException
+	 */
+	private Vector< URLName > resolveMXServer( EmailVO message ) throws InvalidDNSException, SMTPServerConnectionException {
+		Vector< URLName > mxServers = DnsResolver.getMXRecordsForHost( chopHostNameFrom( message.to( ) ) );
+		if( 0 == mxServers.size( ) )
+			throw new SMTPServerConnectionException( "No se pudo determinar la entrada MX del dominio.", null );
+		return mxServers;
+	}
 	
 	/**
 	 * Con base en el tipo de error retornado por el servidor SMTP, se generan excepciones distintas 
@@ -68,7 +86,7 @@ public class MailService {
 		else if ( '4' == exMessage.charAt( 0 ) )
 			throw new SMTPPersistentTemporaryFailureException( exMessage, me );
 		else
-			throw new RuntimeException( me );
+			throw new RuntimeException( "Error SMTP no controlado ni esperado por RFC3464.", me );
 	}
 
 	/**
@@ -144,10 +162,13 @@ public class MailService {
 		{
 			MimeMessage mime = new MimeMessage( session );
 			mime.setFrom( new InternetAddress( message.from( ) ) );
-			mime.addRecipient( Message.RecipientType.TO, new InternetAddress( message.to( ) ) );
 			mime.setSubject( message.subject( ) );
 			mime.setContent( message.message( ), "text/html; charset=utf-8");
 			mime.setSentDate( Calendar.getInstance( ).getTime( ) );
+			mime.addRecipient( Message.RecipientType.TO, new InternetAddress( message.to( ) ) );
+			if( message.hasCC( ) )
+				mime.addRecipient( Message.RecipientType.CC, new InternetAddress( message.cc( ) ) );
+			
 			return mime;
 		}
 		catch( AddressException e ) 
