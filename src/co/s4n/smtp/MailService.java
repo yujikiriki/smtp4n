@@ -161,14 +161,12 @@ public class MailService {
 		try
 		{
 			MimeMessage mime = new MimeMessage( session );
+			mime.addRecipient( Message.RecipientType.TO, new InternetAddress( message.to( ) ) );
+			addCC( message, mime );
 			mime.setFrom( new InternetAddress( message.from( ) ) );
 			mime.setSubject( message.subject( ) );
 			mime.setContent( message.message( ), "text/html; charset=utf-8");
 			mime.setSentDate( Calendar.getInstance( ).getTime( ) );
-			mime.addRecipient( Message.RecipientType.TO, new InternetAddress( message.to( ) ) );
-			if( message.hasCC( ) )
-				mime.addRecipient( Message.RecipientType.CC, new InternetAddress( message.cc( ) ) );
-			
 			return mime;
 		}
 		catch( AddressException e ) 
@@ -179,5 +177,11 @@ public class MailService {
 		{
 			throw new RuntimeException( e );
 		}
+	}
+
+	private void addCC( EmailVO message, MimeMessage mime ) throws MessagingException, AddressException {
+		if( message.hasCC( ) )
+			for ( String cc : message.cc( ) )
+				mime.addRecipient( Message.RecipientType.CC, new InternetAddress( cc ) );
 	}
 }

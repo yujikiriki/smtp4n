@@ -1,14 +1,16 @@
 package co.s4n.smtp;
 
+import java.util.List;
+
 public class EmailVO {
 	
 	private final String from;
 	private final String to;
-	private final String cc;
+	private final List< String > cc;
 	private final String subject;
 	private final String message;
 	
-	public EmailVO( String from, String to, String cc, String subject, String message ) {
+	public EmailVO( String from, String to, List< String > cc, String subject, String message ) {
 		super( );
 		this.from = from;
 		this.to = to;
@@ -33,11 +35,11 @@ public class EmailVO {
 		return subject;
 	}
 	
-	public String cc( ) {
+	public List< String > cc( ) {
 		return cc;
 	}
 
 	public Boolean hasCC( ) {
-		return ( cc != null && cc != "" );
+		return ( cc != null || !cc.isEmpty( ) );
 	}
 }

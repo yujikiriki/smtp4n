@@ -1,5 +1,8 @@
 package co.s4n.smtp;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import co.s4n.smtp.exceptions.InvalidDNSException;
 import co.s4n.smtp.exceptions.InvalidEmailAddress;
 import co.s4n.smtp.exceptions.SMTPPermanentFailureException;
@@ -13,7 +16,10 @@ public class TestMailService extends TestCase {
 		MailService mailService = new MailService( );
 		try 
 		{
-			mailService.send( new EmailVO( "yujikiriki@enterpisy.co", "yujikiriki@s4n.co", "yujikiriki@seven4n.com", "Prueba HTML", "<html><body><p>Hola <b>mundo</b></p></body></html>" ) );
+			List< String > ccs = new LinkedList<>( );
+			ccs.add( "yujikiriki@seven4n.com" );
+			ccs.add( "josegarcia@seven4n.com" );
+			mailService.send( new EmailVO( "yujikiriki@enterpisy.co", "yujikiriki@s4n.co", ccs, "Prueba HTML", "<html><body><p>Hola <b>mundo</b></p></body></html>" ) );
 		}
 		catch ( SMTPPermanentFailureException e ) {
 			e.printStackTrace( );
